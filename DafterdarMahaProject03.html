@@ -16,216 +16,140 @@
 <script>
 	var canvas;
 	var context;
-	var particles;
-	var particles2;
-	var particles3;
+	var shapes = []
 	var timer;
+	var timerTwo;
 	var step;
 	var steps=0;
-	var delay=30;
+	var delay=50;
 	var particle={};
 	var particleIndex=0;
 	var particleNum=2;
-	
-	
-	function Particle (){
-		this.x= canvas.width/2;
-		this.y= canvas.height/2;
-		this.vx= Math.random()*10-5;
-		this.vy= Math.random()*10-5;
-		var colors= ['red','pink','white'];
-		this.color= colors[Math.floor(Math.random()*colors.length)];
-		this.radius= 30;
-	}
 
-	function Particle2 (){
-		this.x= canvas.width/3;
-		this.y= canvas.height/4;
-		this.vx= Math.random()*10-5;
-		this.vy= Math.random()*10-5;
-		var colors= ['white','purple','violet'];
-		this.color= colors[Math.floor(Math.random()*colors.length)];
-		this.radius= 30;
-	}
+	  var possibleShapes = ['star','heart','circle'];
+	  function Shape(x, y, color) {
+		this.x = x;
+		this.y = y;
+		this.size = Math.random()*25+5;
+		this.dx = Math.random()*10-5;
+		this.dy = Math.random()*10-5;
+		this.color = color;
+		this.shape = possibleShapes[Math.floor(Math.random()*possibleShapes.length)];
+	  }
 
- var drawing = function (dx, dy) {
-        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-        context.translate(dx, dy); 
+      function init() {
+        canvas = document.getElementById('canvas');
+        context = canvas.getContext("2d");
+ 
+        window.addEventListener('resize', resizeCanvas, false);
+        window.addEventListener('orientationchange', resizeCanvas, false);
+        resizeCanvas();
+		canvas.onclick = function(event) {
+			handleClick(event.clientX, event.clientY);
+		};
+		timer = setInterval(resizeCanvas, 20);
+		timerTwo = setInterval(newShape, 375);
 
-        context.strokeStyle = 'pink';
+		executeFrame();
+		timer=setInterval(executeFrame,5500);
+
+		textAnimation();
+		//timer=setInterval(textAnimation,000);
+
+	setInterval(function(){
+		context.fillStyle='black';
+		context.fillRect(0,0,canvas.width,canvas.height);
+		for(var i=0;i<particleNum;i++){
+			new drawSquares();
+		}
+		for(var i in particle){
+			particle[i].draw();
+		}
+		},50);
+      }
+
+	  function newShape() {
+		var x = Math.random() * canvas.width;
+		var y = Math.random() * canvas.height;
+		var colors = ['red','pink','violet','purple','white','maroon','magenta','plum'];
+		var color = colors[Math.floor(Math.random()*colors.length)];
+		shapes.push(new Shape(x, y, color));
+		
+	  }
+	  function drawCircle(circle) {
+		 context.beginPath();
+		 context.arc(circle.x, circle.y, circle.size, 0, degreesToRadians(360), true);
+		 context.fillStyle = circle.color;
+		 context.fill();
+	  }
+
+	  function drawHeart(heart) {
+		 context.beginPath();
+		 context.moveTo(heart.x+75, heart.y+40);
+		 context.bezierCurveTo(heart.x+75, heart.y+37, heart.x+70, heart.y+25, heart.x+50, heart.y+25);
+		  context.bezierCurveTo(heart.x+20, heart.y+25, heart.x+20, heart.y+62.5, heart.x+20, heart.y+62.5);
+		  context.bezierCurveTo(heart.x+20, heart.y+80, heart.x+40, heart.y+102, heart.x+75, heart.y+120);
+		  context.bezierCurveTo(heart.x+110, heart.y+102, heart.x+130, heart.y+80, heart.x+130, heart.y+62.5);
+		  context.bezierCurveTo(heart.x+130, heart.y+62.5, heart.x+130, heart.y+25, heart.x+100, heart.y+25);
+		  context.bezierCurveTo(heart.x+85, heart.y+25, heart.x+75, heart.y+37, heart.x+75, heart.y+40);
+		  context.fillStyle = heart.color;
+		  context.fill();
+	  }
+
+	function drawStar(star) {
         context.beginPath();
-        context.moveTo(239, 150);
-      	context.lineTo(289, 50);
-      	context.lineTo(339, 150);
-      	context.lineTo(-150,150);
+        context.moveTo(star.x+107.8, star.y+0.0);
+        context.lineTo(star.x+141.2, star.y+67.5);
+        context.lineTo(star.x+215.7, star.y+78.3);
+        context.lineTo(star.x+161.8, star.y+130.9);
+        context.lineTo(star.x+174.5, star.y+205.1);
+        context.lineTo(star.x+107.8, star.y+170.1);
+        context.lineTo(star.x+41.2, star.y+205.1);
+        context.lineTo(star.x+53.9, star.y+130.9);
+        context.lineTo(star.x+0.0, star.y+78.3);
+        context.lineTo(star.x+74.5, star.y+67.5);
+        context.lineTo(star.x+107.8, star.y+0.0);
+        context.closePath();
+        context.fillStyle=star.color;
+        context.fill();
+	}
+
+	function drawHeartbeat(){
+        context.translate(dx, dy); 
+        context.beginPath();
+        context.setLineDash([15]);
+        context.moveTo(0,450);
+        context.lineTo(139,450);
+      	context.lineTo(200,550);
+      	context.lineTo(300,50);
+      	context.lineTo(400,700);
+      	context.lineTo(450,450);
+      	context.lineTo(700,450);
+      	context.lineTo(750,550);
+      	context.lineTo(850,50);
+      	context.lineTo(950,700);
+      	context.lineTo(1000,450);
+      	context.lineTo(1200,450);
     	context.lineJoin='round';
+    	context.strokeStyle = 'red';
+    	context.lineWidth= 7;
         context.stroke();
-        
         context.translate(-dx, -dy);
     };
 
-        var dx = 0, dy = 0;
+    var dx = 0, dy = 0;
         
-        function executeFrame() {
-            dx++;
-            dy--;
-            if (dx > context.canvas.width) dx = 0;
-            if (dy > context.canvas.height) dy = 0;
-
-            drawing(dx, dy);
-
-            requestAnimationFrame(executeFrame);
-        }        
-	
- var drawstar = function (dx, dy) {
-        context.translate(dx, dy); 
-
-        context.fillStyle = 'white';
-        context.beginPath();
-        context.moveTo(107.8, 0.0);
-        context.lineTo(141.2, 67.5);
-        context.lineTo(215.7, 78.3);
-        context.lineTo(161.8, 130.9);
-        context.lineTo(174.5, 205.1);
-        context.lineTo(107.8, 170.1);
-        context.lineTo(41.2, 205.1);
-        context.lineTo(53.9, 130.9);
-        context.lineTo(0.0, 78.3);
-        context.lineTo(74.5, 67.5);
-        context.lineTo(107.8, 0.0);
-        context.closePath();
-        context.fill();
-
-        
-        context.translate(-dx, -dy); 
-    };
-        var dx = 0, dy = 0;
-        
-        function executeFrame2() {
-            dx++;
-            dy++;
-            if (dx > context.canvas.width) dx = 0;
-            if (dy > context.canvas.height) dy = 0;
-
-            drawstar(dx,dy);
-
-            requestAnimationFrame(executeFrame2);
-        }  
-
-var drawHeart = function (cp1x, cp1y, cp2x, cp2y, x, y) {
-        context.translate(cp1x, cp1y, cp2x, cp2y, x, y); 
-
-        context.fillStyle = 'red';
-        context.beginPath();
-        context.moveTo(75,40);
-        context.bezierCurveTo(75,37,70,25,50,25);
-        context.bezierCurveTo(20,25,20,62.5,20,62.5);
-        context.bezierCurveTo(20,80,40,102,75,120);
-        context.bezierCurveTo(110,102,130,80,130,62.5);
-        context.bezierCurveTo(130,62.5,130,25,100,25);
-        context.bezierCurveTo(85,25,75,37,75,40);
-        context.fill();
-        
-        context.translate(-cp1x, -cp1y, -cp2x, -cp2y, -x, -y); 
-    };
-        var cp1x=0, cp1y=0, cp2x=0, cp2y=0, x=0, y=0;
-        
-        function executeFrame3() {
-            cp1x++;
-             cp1y++; 
-             cp2x++; 
-             cp2y++;
-              x++; 
-              y++;
-            if (dx > context.canvas.width) dx = 0;
-            if (dy > context.canvas.height) dy = 0;
-
-            drawHeart(cp1x, cp1y, cp2x, cp2y, x, y);
-
-            requestAnimationFrame(executeFrame3);
-        }  		 
-
-	function makeParticles(){
-		particles=[];
-		for (var i=0; i<30; i++){
-			particles.push(new Particle()); 
-		}
-	}
-
-	function makeParticles2(){
-		particles2=[];
-		for (var i=0; i<30; i++){ 
-			particles2.push(new Particle2());
-		}
-	} 
+    function executeFrame() {
+        dx--;
+        dy;
+        if (dx > context.canvas.width) dx = 0;
+        if (dy > context.canvas.height) dy = 0;
+        drawHeartbeat();
+        requestAnimationFrame(executeFrame);
+    } 
 
 
-	function degreesToRadians(degrees){
-		return (degrees * Math.PI)/180;
-	}
-
-	function moveParticles(){ 
-		context.gloablCompositeOperation= 'source-over'; 
-		context.fillStyle= 'rgba(0,0,0,0.3)'; 
-		context.fillRect(0,0,canvas.width,canvas.height);
-		context.gloablCompositeOperation='darker';
-		for (var i=0; i<particles.length; i++){ 
-			var p= particles[i];
-			context.beginPath();
-			context.arc(p.x, p.y, p.radius,0,degreesToRadians(360),true);
-			context.fillStyle= p.color;
-			context.fill();
-			p.x+= p.vx;
-			p.y+= p.vy;
-			p.radius= p.radius-1;
-			if (p.radius < 0)
-				p.radius = p.radius+1;
-			if (p.x< -50)
-				p.x = canvas.width+50;
-			if (p.x > canvas.width+50)
-				p.x= -50;
-			if (p.y < -50)
-				p.y= canvas.height+50;
-			if (p.y > canvas.height+50)
-				p.y= -50;
-		}
-	}
-	
-	function moveParticles2(){ 
-		context.globalCompositeOperation= 'source-over'; 
-		context.fillStyle= 'rgba(0,0,0,0.3)'; 
-		context.fillRect(0,0,canvas.width,canvas.height);
-		context.globalCompositeOperation='lighten';
-		for (var j=0; j<particles2.length; j++){ // to draw a single particle
-			var p= particles2[j];
-			context.beginPath();
-			context.arc(p.x, p.y, p.radius,0,2*Math.PI,false);
-			context.fillStyle= p.color;
-			context.fill();
-			p.x+= p.vx;
-			p.y+= p.vy;
-			p.radius= p.radius-1;
-			if (p.radius < 0)
-				p.radius = p.radius+1;
-			if (p.x< -50) 
-				p.x = canvas.width+50; 
-			if (p.x > canvas.width+50)
-				p.x= -50;
-			if (p.y < -50)
-				p.y= canvas.height+50;
-			if (p.y > canvas.height+50)
-				p.y= -50;
-		}
-
-	}
-
-
-	function textAnimation(){ 
-		
-		context.fillStyle='red';
-		context.font='40px Arial';
-		context.textAlign = 'center';
-        context.textBaseline = 'middle';
+    function textAnimation(){ 
         step=0;
         steps = canvas.height + 50;
         RunTextLeftToRight();
@@ -233,90 +157,84 @@ var drawHeart = function (cp1x, cp1y, cp2x, cp2y, x, y) {
     
 	function RunTextLeftToRight() {
         step++;
-        context.clearRect(0, 0, canvas.width, canvas.height);
         context.save();
         context.translate(canvas.width/2, step);
-        context.fillText('All you need is LOVE', 0, 0);
+        context.fillStyle='red';
+        context.font='40px Arial';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText('All I Need is LOVE', 0, 0);
         context.restore();
         if (step == steps)
             step = 0;
         if (step < steps)
             var t = setTimeout(RunTextLeftToRight, delay);
     }	
-    
-		
-	window.onload= function(){
-		canvas= document.getElementById('canvas');
-		context= canvas.getContext('2d');
-		window.addEventListener('resize',resizeCanvas, false);
-		window.addEventListener('orientationchange',resizeCanvas, false);
 
-		function Particle4(){
-			this.x=canvas.width/2;
-			this.y=canvas.height*0;
-			this.vx=Math.random()*10-5;
-			this.vy=Math.random()*10-5;
-			this.gravity=0.3;
-			particleIndex++;
-			particle[particleIndex]=this;
-			this.id= particleIndex;
-			this.life=0;
-			this.maxLife= Math.random()*30+50;
-		}
-			Particle4.prototype.draw=function(){
-			this.x += this.vx;
-			this.y += this.vy;
-			this.vy += this.gravity;
-			this.life++;
-			if(this.life>=this.maxLife){
-				delete particle[this.id];
-		}
-			context.fillStyle='rgba(255,255,255,0.5)';
-			context.fillRect(this.x,this.y,10,10);
-		};
-		
-		setInterval(function(){
-			context.fillStyle='black';
-			context.fillRect(0,0,canvas.width,canvas.height);
-			for(var i=0;i<particleNum;i++){
-			new Particle4();
-		}
-			for(var i in particle){
-				particle[i].draw();
-			}
-		},30);
-
-
-		makeParticles();
-		timer= setInterval(moveParticles, 20);
-		timer= setInterval(makeParticles, 1500); 
-		
-		makeParticles2();
-		timer=setInterval(moveParticles2,20);
-		timer=setInterval(makeParticles2,1500);
-
-		textAnimation();
-		timer=setInterval(textAnimation,3000);
-		
-		drawHeart();
-		executeFrame();
-		executeFrame2();
-		executeFrame3();
-
+	function drawSquares(){
+		this.x=canvas.width/2;
+		this.y=canvas.height*0;
+		this.vx=Math.random()*10-5;
+		this.vy=Math.random()*10-5;
+		this.gravity=0.3;
+		particleIndex++;
+		particle[particleIndex]=this;
+		this.id= particleIndex;
+		this.life=0;
+		this.maxLife= Math.random()*30+50;
 	}
-	function resizeCanvas(){
-		canvas.width=window.innerWidth-25;
-		canvas.height=window.innerHeight-25;
+
+	drawSquares.prototype.draw=function(){
+		this.x += this.vx;
+		this.y += this.vy;
+		this.vy += this.gravity;
+		this.life++;
+		if(this.life>=this.maxLife){
+			delete particle[this.id];
+		}
+		context.fillStyle='rgba(255,255,255,0.5)';
+		context.fillRect(this.x,this.y,10,10);
+	};
+
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth-25;
+        canvas.height = window.innerHeight-25;
 		fillBackgroundColor();
+		for (var i=0; i<shapes.length; i++) {
+			if (shapes[i].shape == 'star') {
+				drawStar(shapes[i]);
+			} else if (shapes[i].shape == 'heart') {
+				drawHeart(shapes[i]);
+			} else if (shapes[i].shape =='circle') {
+				drawCircle(shapes[i]);
+			}
+			if (shapes[i].x + shapes[i].dx > canvas.width || shapes[i].x + shapes[i].dx < 0)
+				shapes[i].dx = -shapes[i].dx;
+			if (shapes[i].y + shapes[i].dy > canvas.height || shapes[i].y + shapes[i].dy < 0)
+				shapes[i].dy = -shapes[i].dy;
+				shapes[i].x += shapes[i].dx;
+				shapes[i].y += shapes[i].dy;
+		}	 
+    }
+
+	function fillBackgroundColor() {
+		 context.fillStyle = 'black';
+		 context.fillRect(0, 0, canvas.width, canvas.height);
 	}
-	function fillBackgroundColor(){
-		context.fillStyle='black';
-		context.fillRect(0,0,canvas.width,canvas.height);
-		
+
+	function degreesToRadians(degrees) {
+		return (degrees * Math.PI)/180;
 	}
+
+	window.onload = init;
 </script>
 </head>
 <body>
 	<canvas id='canvas' width=700 height=700></canvas>
+	<audio controls autoplay>
+ 		<source src='Cee Lo Green - All I Need Is Love (ft. The Muppets) (Full HQ).mp3' type='audio/mpeg'/>
+ 		if you can see this update browser
+ 	</audio>
 </body>
 </html>
