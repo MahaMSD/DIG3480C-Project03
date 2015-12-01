@@ -26,7 +26,7 @@
 	var particleIndex=0;
 	var particleNum=2;
 
-	  var possibleShapes = ['star','heart','circle'];
+	  var possibleShapes = ['star','heart','circle','heartbeat'];
 	  function Shape(x, y, color) {
 		this.x = x;
 		this.y = y;
@@ -39,7 +39,7 @@
 
       function init() {
         canvas = document.getElementById('canvas');
-        context = canvas.getContext("2d");
+        context = canvas.getContext('2d');
  
         window.addEventListener('resize', resizeCanvas, false);
         window.addEventListener('orientationchange', resizeCanvas, false);
@@ -50,22 +50,18 @@
 		timer = setInterval(resizeCanvas, 20);
 		timerTwo = setInterval(newShape, 375);
 
-		executeFrame();
-		timer=setInterval(executeFrame,5500);
-
 		textAnimation();
-		//timer=setInterval(textAnimation,000);
 
-	setInterval(function(){
-		context.fillStyle='black';
-		context.fillRect(0,0,canvas.width,canvas.height);
-		for(var i=0;i<particleNum;i++){
-			new drawSquares();
-		}
-		for(var i in particle){
-			particle[i].draw();
-		}
-		},50);
+		setInterval(function(){
+			context.fillStyle='black';
+			context.fillRect(0,0,canvas.width,canvas.height);
+			for(var i=0;i<particleNum;i++){
+				new drawSquares();
+			}
+			for(var i in particle){
+				particle[i].draw();
+			}
+			},50);
       }
 
 	  function newShape() {
@@ -114,44 +110,32 @@
         context.fill();
 	}
 
-	function drawHeartbeat(){
-        context.translate(dx, dy); 
+	function drawHeartbeat(heartbeat){ 
         context.beginPath();
         context.setLineDash([15]);
-        context.moveTo(0,450);
-        context.lineTo(139,450);
-      	context.lineTo(200,550);
-      	context.lineTo(300,50);
-      	context.lineTo(400,700);
-      	context.lineTo(450,450);
-      	context.lineTo(700,450);
-      	context.lineTo(750,550);
-      	context.lineTo(850,50);
-      	context.lineTo(950,700);
-      	context.lineTo(1000,450);
-      	context.lineTo(1200,450);
+        context.moveTo(heartbeat.x+0,heartbeat.y+450);
+        context.lineTo(heartbeat.x+139,heartbeat.y+450);
+      	context.lineTo(heartbeat.x+200,heartbeat.y+550);
+      	context.lineTo(heartbeat.x+300,heartbeat.y+50);
+      	context.lineTo(heartbeat.x+400,heartbeat.y+700);
+      	context.lineTo(heartbeat.x+450,heartbeat.y+450);
+      	context.lineTo(heartbeat.x+700,heartbeat.y+450);
+      	context.lineTo(heartbeat.x+750,heartbeat.y+550);
+      	context.lineTo(heartbeat.x+850,heartbeat.y+50);
+      	context.lineTo(heartbeat.x+950,heartbeat.y+700);
+      	context.lineTo(heartbeat.x+1000,heartbeat.y+450);
+      	context.lineTo(heartbeat.x+1200,heartbeat.y+450);
     	context.lineJoin='round';
-    	context.strokeStyle = 'red';
     	context.lineWidth= 7;
+    	context.strokeStyle = heartbeat.color;
         context.stroke();
-        context.translate(-dx, -dy);
-    };
+    }
 
-    var dx = 0, dy = 0;
-        
-    function executeFrame() {
-        dx--;
-        dy;
-        if (dx > context.canvas.width) dx = 0;
-        if (dy > context.canvas.height) dy = 0;
-        drawHeartbeat();
-        requestAnimationFrame(executeFrame);
-    } 
 
 
     function textAnimation(){ 
         step=0;
-        steps = canvas.height + 50;
+        steps = canvas.height + 100;
         RunTextLeftToRight();
     }
     
@@ -174,8 +158,8 @@
 	function drawSquares(){
 		this.x=canvas.width/2;
 		this.y=canvas.height*0;
-		this.vx=Math.random()*10-5;
-		this.vy=Math.random()*10-5;
+		this.vx=Math.random()*20-5;
+		this.vy=Math.random()*20-5;
 		this.gravity=0.3;
 		particleIndex++;
 		particle[particleIndex]=this;
@@ -208,6 +192,8 @@
 				drawHeart(shapes[i]);
 			} else if (shapes[i].shape =='circle') {
 				drawCircle(shapes[i]);
+			}else if (shapes[i].shape =='heartbeat') {
+				drawHeartbeat(shapes[i]);
 			}
 			if (shapes[i].x + shapes[i].dx > canvas.width || shapes[i].x + shapes[i].dx < 0)
 				shapes[i].dx = -shapes[i].dx;
